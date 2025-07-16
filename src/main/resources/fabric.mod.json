@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "near-death-experience",
+	"version": "0.1.0_alpha",
+	"name": "Near Death Experience",
+	"description": "Experience divine intervention when you're near death!",
+	"authors": [
+		"DrHyperion451"
+	],
+	"contact": {
+		"homepage": "https://github.com/drHyperion451/near-death-experience",
+		"sources": "https://github.com/drHyperion451/near-death-experience"
+	},
+	"license": "ARR",
+	"icon": "assets/near-death-experience/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"me.drhyperion451.neardeathexp.NearDeathExperienceMod"
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": "1.21.x",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

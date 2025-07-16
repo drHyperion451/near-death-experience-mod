@@ -1,0 +1,13 @@
+{
+  "bell": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "near-death-experience:bell",
+        "stream": false,
+        "volume": 0.8,
+        "pitch": 1.0
+      }
+    ]
+  }
+}
