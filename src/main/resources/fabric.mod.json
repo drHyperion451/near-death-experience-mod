@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "near-death-experience",
-	"version": "0.1.0_alpha",
+	"version": "1.0.0",
 	"name": "Near Death Experience",
 	"description": "Experience divine intervention when you're near death!",
 	"authors": [
@@ -11,7 +11,7 @@
 		"homepage": "https://github.com/drHyperion451/near-death-experience",
 		"sources": "https://github.com/drHyperion451/near-death-experience"
 	},
-	"license": "ARR",
+	"license": "Apache-2.0",
 	"icon": "assets/near-death-experience/icon.png",
 	"environment": "client",
 	"entrypoints": {
