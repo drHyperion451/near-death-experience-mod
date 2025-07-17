@@ -39,8 +39,8 @@ public class JesusOverlay {
 
 
     // Scaled dimensions for display (adjust these to change the size)
-    private final int scaledWidth = 256;  // Half the original size
-    private final int scaledHeight = 144; // Half the original size
+    private final int scaledWidth = 192;  // Half the original size
+    private final int scaledHeight = 192; // Half the original size
 
     /**
      * Constructor - registers the HUD render callback

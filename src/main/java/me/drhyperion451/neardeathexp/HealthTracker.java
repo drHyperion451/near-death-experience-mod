@@ -36,7 +36,7 @@ public class HealthTracker {
 
         // Condición 2: Haber perdido 85% de la vida en un hit
         float healthLost = previousHealth - currentHealth;
-        boolean massiveDamage = healthLost >= (maxHealth * 0.85f);
+        boolean massiveDamage = healthLost >= (maxHealth * 0.50f);
 
         // Solo activar si no se ha activado ya en esta "sesión cerca de la muerte"
         boolean canTrigger = !hasTriggered;
