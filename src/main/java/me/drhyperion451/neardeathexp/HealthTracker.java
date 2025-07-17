@@ -4,7 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 
 /**
  * Tracks player health changes to trigger near-death experience effects.
- * Monitors for critical health conditions and massive damage events.
+ * Monitors for critical health conditions, massive damage events, and death.
  */
 public class HealthTracker {
     // Store the player's health from the previous tick for comparison
@@ -13,10 +13,12 @@ public class HealthTracker {
     private float maxHealth = 20.0f;
     // Prevent multiple triggers during the same near-death episode
     private boolean hasTriggered = false;
+    // Track if player has ever seen Jesus effect (permanent flag for death trigger)
+    private boolean hasEverTriggered = false;
 
     /**
      * Updates the health tracker with current player state.
-     * Called every client tick to monitor health changes.
+     * Called every client tick to monitor health changes and death.
      *
      * @param player The current player entity
      */
@@ -33,6 +35,10 @@ public class HealthTracker {
         if (shouldTriggerJesus(currentHealth, currentMaxHealth)) {
             triggerJesusEffect();
         }
+        // Check for death trigger (only if never triggered before)
+        else if (shouldTriggerOnDeath(currentHealth)) {
+            triggerJesusEffect();
+        }
 
         // Store current health for next tick's comparison
         previousHealth = currentHealth;
@@ -45,7 +51,7 @@ public class HealthTracker {
     }
 
     /**
-     * Determines if the Jesus effect should be triggered based on health conditions.
+     * Determines if the Jesus effect should be triggered based on near-death conditions.
      *
      * @param currentHealth Player's current health points
      * @param maxHealth Player's maximum health points
@@ -67,11 +73,24 @@ public class HealthTracker {
     }
 
     /**
+     * Determines if the Jesus effect should be triggered on death.
+     * Only triggers on actual death and only if the player has never seen Jesus before.
+     *
+     * @param currentHealth Player's current health points
+     * @return true if the effect should trigger, false otherwise
+     */
+    private boolean shouldTriggerOnDeath(float currentHealth) {
+        // Player just died (health went from >0 to exactly 0)
+        return (previousHealth > 0.0f && currentHealth <= 0.0f);
+    }
+
+    /**
      * Activates the Jesus overlay effect and logs the trigger event.
-     * Sets the trigger flag to prevent repeated activations.
+     * Sets both temporary and permanent flags to prevent repeated activations.
      */
     private void triggerJesusEffect() {
         hasTriggered = true;
+        hasEverTriggered = true;
         NearDeathExperienceMod.getInstance().getJesusOverlay().showJesus();
         NearDeathExperienceMod.LOGGER.info("Jesus effect triggered!");
     }
