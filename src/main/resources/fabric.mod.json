@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "near-death-experience",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"name": "Near Death Experience",
 	"description": "Experience divine intervention when you're near death!",
 	"authors": [
@@ -22,7 +22,7 @@
 	"mixins": [],
 	"depends": {
 		"fabricloader": ">=0.15.0",
-		"minecraft": "1.21.1",
+		"minecraft": ["1.21", "1.21.1"],
 		"java": ">=21",
 		"fabric-api": "*"
 	}
