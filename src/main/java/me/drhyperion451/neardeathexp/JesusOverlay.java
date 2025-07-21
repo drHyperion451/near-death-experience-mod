@@ -3,17 +3,12 @@ package me.drhyperion451.neardeathexp;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import static me.drhyperion451.neardeathexp.NearDeathExperienceMod.bellSound;
 
@@ -133,7 +128,12 @@ public class JesusOverlay {
      * Renders the Jesus texture using low-level OpenGL calls for proper alpha blending
      * This method uses Tessellator to manually create a textured quad with transparency
      *
-     * @param context The DrawContext for accessing transformation matrices
+     * @param alpha The transparency value (0.0 = transparent, 1.0 = opaque)
+     */
+    /**
+     * Renders the Jesus texture using DrawContext for proper GUI rendering with alpha blending
+     *
+     * @param context The DrawContext for GUI rendering
      * @param alpha The transparency value (0.0 = transparent, 1.0 = opaque)
      */
     private void renderJesus(DrawContext context, float alpha) {
@@ -145,38 +145,13 @@ public class JesusOverlay {
         int x = (screenWidth - scaledWidth) / 2;
         int y = (screenHeight - scaledHeight) / 2;
 
-        // Configure OpenGL render state for texture rendering with transparency
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram); // Use position + texture shader
-        RenderSystem.setShaderTexture(0, JESUS_TEXTURE); // Bind our texture to slot 0
-        RenderSystem.enableBlend(); // Enable alpha blending
-        RenderSystem.defaultBlendFunc(); // Use default blend function (src_alpha, one_minus_src_alpha)
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha); // Set color with alpha
+        // Use DrawContext's fill method with alpha (convert alpha to ARGB color)
+        int alphaInt = (int)(alpha * 255) << 24;
+        int color = 0xFFFFFF | alphaInt; // White with alpha
 
-        // Get the current transformation matrix from the context
-        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-
-        // Create tessellator for manual vertex building
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-        // Build a quad (rectangle) with 4 vertices
-        // Each vertex has position (x, y, z) and texture coordinates (u, v)
-        // Texture coordinates: (0,0) = top-left, (1,1) = bottom-right
-
-        // Bottom-left vertex
-        buffer.vertex(matrix, x, y + scaledHeight, 0).texture(0.0f, 1.0f);
-        // Bottom-right vertex
-        buffer.vertex(matrix, x + scaledWidth, y + scaledHeight, 0).texture(1.0f, 1.0f);
-        // Top-right vertex
-        buffer.vertex(matrix, x + scaledWidth, y, 0).texture(1.0f, 0.0f);
-        // Top-left vertex
-        buffer.vertex(matrix, x, y, 0).texture(0.0f, 0.0f);
-
-        // Submit the buffer to be rendered
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
-
-        // Restore OpenGL state to avoid affecting other rendering
-        RenderSystem.disableBlend(); // Disable blending
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f); // Reset color to full opacity
+        // Draw the texture
+        context.drawTexturedQuad(JESUS_TEXTURE, x, y, 0, 0, scaledWidth, scaledHeight, scaledWidth, scaledHeight);
     }
+
+
 }
