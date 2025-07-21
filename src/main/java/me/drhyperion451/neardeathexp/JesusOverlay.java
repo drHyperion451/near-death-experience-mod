@@ -3,7 +3,6 @@ package me.drhyperion451.neardeathexp;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.BufferBuilder;
@@ -15,6 +14,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 
+import static me.drhyperion451.neardeathexp.NearDeathExperienceMod.LOGGER;
 import static me.drhyperion451.neardeathexp.NearDeathExperienceMod.bellSound;
 
 /**
@@ -37,10 +37,9 @@ public class JesusOverlay {
     private static final int FADE_OUT_DURATION = 40; // 2 seconds for fade out
     private static final int TOTAL_DURATION = FADE_IN_DURATION + SHOW_DURATION + FADE_OUT_DURATION;
 
-
     // Scaled dimensions for display (adjust these to change the size)
-    private final int scaledWidth = 192;  // Half the original size
-    private final int scaledHeight = 192; // Half the original size
+    private static final int scaledWidth = 192;  // Half the original size
+    private static final int scaledHeight = 192; // Half the original size
 
     /**
      * Constructor - registers the HUD render callback
@@ -77,7 +76,7 @@ public class JesusOverlay {
      * Handles the animation timing and rendering logic
      * Animation is paused when the game is paused
      */
-    private void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+    private void onHudRender(DrawContext context, float tickDelta) {
         // Skip rendering if the overlay is not active
         if (!isActive) return;
 
@@ -136,7 +135,7 @@ public class JesusOverlay {
      * @param context The DrawContext for accessing transformation matrices
      * @param alpha The transparency value (0.0 = transparent, 1.0 = opaque)
      */
-    private void renderJesus(DrawContext context, float alpha) {
+    private static void renderJesus(DrawContext context, float alpha) {
         MinecraftClient client = MinecraftClient.getInstance();
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
@@ -157,23 +156,26 @@ public class JesusOverlay {
 
         // Create tessellator for manual vertex building
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        BufferBuilder buffer = tessellator.getBuffer();
+
+        // Begin building vertices - using QUADS mode for 1.20.1 compatibility
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         // Build a quad (rectangle) with 4 vertices
         // Each vertex has position (x, y, z) and texture coordinates (u, v)
         // Texture coordinates: (0,0) = top-left, (1,1) = bottom-right
 
         // Bottom-left vertex
-        buffer.vertex(matrix, x, y + scaledHeight, 0).texture(0.0f, 1.0f);
+        buffer.vertex(matrix, x, y + scaledHeight, 0).texture(0.0f, 1.0f).next();
         // Bottom-right vertex
-        buffer.vertex(matrix, x + scaledWidth, y + scaledHeight, 0).texture(1.0f, 1.0f);
+        buffer.vertex(matrix, x + scaledWidth, y + scaledHeight, 0).texture(1.0f, 1.0f).next();
         // Top-right vertex
-        buffer.vertex(matrix, x + scaledWidth, y, 0).texture(1.0f, 0.0f);
+        buffer.vertex(matrix, x + scaledWidth, y, 0).texture(1.0f, 0.0f).next();
         // Top-left vertex
-        buffer.vertex(matrix, x, y, 0).texture(0.0f, 0.0f);
+        buffer.vertex(matrix, x, y, 0).texture(0.0f, 0.0f).next();
 
-        // Submit the buffer to be rendered
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        // Draw the buffer using the tessellator (1.20.1 method)
+        tessellator.draw();
 
         // Restore OpenGL state to avoid affecting other rendering
         RenderSystem.disableBlend(); // Disable blending
